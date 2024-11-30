@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analizar Imágenes</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+
+        #imagenes {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        #imagenes div {
+            text-align: center;
+            background-color: #fff;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        #imagenes img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        #resultados {
+            margin-top: 30px;
+            text-align: left;
+        }
+
+        .resultado {
+            background-color: #fff;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .resultado h3 {
+            margin-top: 0;
+        }
+
+        .resultado ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .resultado li {
+            font-size: 1rem;
+            padding: 5px 0;
+        }
+
+        .error {
+            color: red;
+            font-size: 1rem;
+            padding: 10px;
+            background-color: #ffcccb;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Analizar Imágenes con Imagga</h1>
+    
+    <!-- Mostrar las imágenes -->
+    <div id="imagenes">
+        <div>
+            <img src="https://upload.wikimedia.org/wikipedia/commons/3/3a/Cat03.jpg" alt="Imagen 1" width="300">
+            <p>Imagen 1: Gato</p>
+        </div>
+        <div>
+            <img src="https://piensosloboazul.com/cdn/shop/articles/Perro_tranquilo.jpg" alt="Imagen 2" width="300">
+            <p>Imagen 2: Perro</p>
+        </div>
+        <div>
+            <img src="https://www.futbolred.com/files/article_main/uploads/2024/09/13/66e43c47afc8f.jpeg" alt="Imagen 3" width="300">
+            <p>Imagen 3: Perro comiendo</p>
+        </div>
+    </div>
+    
+    <button onclick="analizarImágenes()">Analizar</button>
+    
+    <!-- Resultados del análisis de las imágenes -->
+    <div id="resultados">
+        <!-- Los resultados se mostrarán aquí después de hacer clic en Analizar -->
+    </div>
+
+    <script>
+        function analizarImágenes() {
+            // URLs de las imágenes para enviar a la API de Imagga
+            const imagenes = [
+                "https://upload.wikimedia.org/wikipedia/commons/3/3a/Cat03.jpg",
+                "https://piensosloboazul.com/cdn/shop/articles/Perro_tranquilo.jpg",
+                "https://www.futbolred.com/files/article_main/uploads/2024/09/13/66e43c47afc8f.jpeg"
+            ];
+
+            // Limpiar resultados anteriores
+            const resultadosDiv = document.getElementById('resultados');
+            resultadosDiv.innerHTML = '';
+
+            // Llamar a la API de Imagga para cada imagen
+            imagenes.forEach(function(url, index) {
+                fetch('/analizar', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ image_url: url })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Mostrar los resultados de la API en el HTML
+                    const imageResult = document.createElement('div');
+                    imageResult.classList.add('resultado');
+                    imageResult.innerHTML = ` 
+                        <h3>Resultado de Imagen ${index + 1}</h3>
+                        <p>Etiquetas:</p>
+                        <ul>
+                            ${data.tags.slice(0, 2).map(tag => `<li>${tag.tag.en} - ${Math.round(tag.confidence)}%</li>`).join('')}
+                        </ul>
+                    `;
+                    resultadosDiv.appendChild(imageResult);
+                })
+                .catch(error => {
+                    console.error('Error al analizar la imagen:', error);
+                    const errorDiv = document.createElement('div');
+                    errorDiv.classList.add('error');
+                    errorDiv.innerHTML = `<p>Error al analizar la imagen ${index + 1}.</p>`;
+                    resultadosDiv.appendChild(errorDiv);
+                });
+            });
+        }
+    </script>
+</body>
+</html>
