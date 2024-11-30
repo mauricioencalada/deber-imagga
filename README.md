@@ -12,3 +12,9 @@ docker build -t deber_imagga .
 
 ```shell
 docker run -d -p 5000:5000 deber_imagga
+
+```
+3) Open proyect
+
+```shell
+http:localhost:5000
